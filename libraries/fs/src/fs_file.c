@@ -542,13 +542,20 @@ BOOL FS_OpenFile (FSFile *p_file, const char *path)
 	}
 	else
 	{
-        #if FS_FILE_OPEN_DEBUG
-        char messageBuf[200] = {0};
-        snprintf(messageBuf, 199, "Failed to open file '%s'.", path);
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "ROM Extraction Required", messageBuf, NULL);
-        #else
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "ROM Extraction Required", "ROM filesystem is missing. Select 'OK' and choose a NDS ROM file in the next step.", NULL);
-        #endif
+        // Only nag the user with a message box when auto-extraction (rom.nds
+        // next to the executable) is not available.
+        FILE *autoRom = fopen("rom.nds", "rb");
+        if (autoRom != NULL) {
+            fclose(autoRom);
+        } else {
+            #if FS_FILE_OPEN_DEBUG
+            char messageBuf[200] = {0};
+            snprintf(messageBuf, 199, "Failed to open file '%s'.", path);
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "ROM Extraction Required", messageBuf, NULL);
+            #else
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "ROM Extraction Required", "ROM filesystem is missing. Select 'OK' and choose a NDS ROM file in the next step.", NULL);
+            #endif
+        }
 
         SIM_ShowRomExtractionDialog();
 

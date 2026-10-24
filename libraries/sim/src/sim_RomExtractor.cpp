@@ -5,10 +5,18 @@
 #include "nds-extract.hpp"
 
 #include <SDL2/SDL.h>
+#include <filesystem>
 #include <string>
 
 
 void SIM_ShowRomExtractionDialog() {
+    // Auto mode: if a rom.nds is bundled next to the executable, extract it
+    // silently with no file dialog.
+    if (std::filesystem::exists("rom.nds")) {
+        SIM_NDSExtract("rom.nds");
+        return;
+    }
+
     bool fileSelected = false;
     SIM::GUI::Enable();
     SIM::GUI::OpenFileDialog([&fileSelected](std::string fileName) {
